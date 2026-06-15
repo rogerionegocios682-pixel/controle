@@ -70,7 +70,6 @@
             transition: all 0.2s;
         }
 
-        /* Seção de Cadastro de Produtos */
         .cadastro-container {
             background: #ffffff;
             border: 1px solid var(--border-color);
@@ -117,7 +116,6 @@
             outline: none;
         }
 
-        /* Abas */
         .tabs-container {
             display: flex;
             gap: 5px;
@@ -157,7 +155,6 @@
             color: white;
         }
 
-        /* Tabela Grade Aberta */
         .table-responsive {
             overflow-x: auto;
             background: white;
@@ -264,7 +261,6 @@
             background-color: var(--pdf-hover);
         }
 
-        /* Banner de Modo Relatório */
         .report-banner {
             background-color: #fffbeb;
             border: 1px solid #fef3c7;
@@ -423,10 +419,8 @@
 
     <div class="table-responsive">
         <table>
-            <thead id="table-header">
-                </thead>
-            <tbody id="inventory-grid">
-                </tbody>
+            <thead id="table-header"></thead>
+            <tbody id="inventory-grid"></tbody>
         </table>
     </div>
 
@@ -436,16 +430,13 @@
 </div>
 
 <script>
-    let abaAtual = 'BEBIDAS';
-    let categoriaRelatorioFiltro = 'BEBIDAS'; 
-    let diaAtual = 'SEGUNDA';
-    let modoRelatorio = false;
-    
-    // Objeto que armazenará os dados da semana atual carregada
-    let estoqueDados = {};
+    var abaAtual = 'BEBIDAS';
+    var categoriaRelatorioFiltro = 'BEBIDAS'; 
+    var diaAtual = 'SEGUNDA';
+    var modoRelatorio = false;
+    var estoqueDados = {};
 
-    // Base de produtos padrão para inicializar semanas novas sem registos
-    const listaProdutosPadrao = {
+    var listaProdutosPadrao = {
         BEBIDAS: [
             { produto: "HEIN. 600 ML", unid: "UNI" },
             { produto: "HEIN. LONG", unid: "UNI" },
@@ -475,8 +466,8 @@
     };
 
     window.onload = function() {
-        const hoje = new Date().toISOString().split('T')[0];
-        const inputData = document.getElementById('data-sistema');
+        var hoje = new Date().toISOString().split('T')[0];
+        var inputData = document.getElementById('data-sistema');
         if(inputData) inputData.value = hoje;
         
         carregarDadosDaSemana(hoje);
@@ -484,54 +475,54 @@
     };
 
     function criarEstruturaDias(estoqueInicialPadrao) {
-        const dias = ['SEGUNDA', 'TERÇA', 'QUARTA', 'QUINTA', 'SEXTA', 'SÁBADO', 'DOMINGO'];
-        let estrutura = {};
-        dias.forEach(dia => {
+        var dias = ['SEGUNDA', 'TERÇA', 'QUARTA', 'QUINTA', 'SEXTA', 'SÁBADO', 'DOMINGO'];
+        var estrutura = {};
+        dias.forEach(function(dia) {
             estrutura[dia] = { inicial: estoqueInicialPadrao, entrada: 0, vendas: 0, perda: 0, final: estoqueInicialPadrao };
         });
         return estrutura;
     }
 
     function obterSegundaFeira(dataInput) {
-        let data = dataInput ? new Date(dataInput) : new Date();
+        var data = dataInput ? new Date(dataInput) : new Date();
         data.setMinutes(data.getMinutes() + data.getTimezoneOffset());
-        let diaSemana = data.getDay(); 
-        let diferenca = data.getDate() - diaSemana + (diaSemana === 0 ? -6 : 1); 
+        var diaSemana = data.getDay(); 
+        var diferenca = data.getDate() - diaSemana + (diaSemana === 0 ? -6 : 1); 
         return new Date(data.setDate(diferenca));
     }
 
     function formatarDataBR(data) {
         if (!data || isNaN(data.getTime())) return "--/--/----";
-        let dia = String(data.getDate()).padStart(2, '0');
-        let mes = String(data.getMonth() + 1).padStart(2, '0');
-        let ano = data.getFullYear();
-        return `${dia}/${mes}/${ano}`;
+        var dia = String(data.getDate()).padStart(2, '0');
+        var mes = String(data.getMonth() + 1).padStart(2, '0');
+        var ano = data.getFullYear();
+        return dia + "/" + mes + "/" + ano;
     }
 
     function formatarChaveSemana(data) {
-        let seg = obterSegundaFeira(data);
-        let dia = String(seg.getDate()).padStart(2, '0');
-        let mes = String(seg.getMonth() + 1).padStart(2, '0');
-        let ano = seg.getFullYear();
-        return `estoque_semana_${ano}_${mes}_${dia}`;
+        var seg = obterSegundaFeira(data);
+        var dia = String(seg.getDate()).padStart(2, '0');
+        var mes = String(seg.getMonth() + 1).padStart(2, '0');
+        var ano = seg.getFullYear();
+        return "estoque_semana_" + ano + "_" + mes + "_" + dia;
     }
 
-    // FUNÇÕES DO LOCALSTORAGE: Carregar e Inicializar Dados
     function carregarDadosDaSemana(dataRef) {
-        const chave = formatarChaveSemana(dataRef);
-        const dadosSalvos = localStorage.getItem(chave);
+        var chave = formatarChaveSemana(dataRef);
+        var dadosSalvos = localStorage.getItem(chave);
 
         if (dadosSalvos) {
             estoqueDados = JSON.parse(dadosSalvos);
         } else {
-            // Se não existir dados salvos para esta semana, cria uma nova com base no padrão
             estoqueDados = {};
-            for (let categoria in listaProdutosPadrao) {
-                estoqueDados[categoria] = listaProdutosPadrao[categoria].map(p => ({
-                    produto: p.produto,
-                    unid: p.unid,
-                    lancamentos: criarEstruturaDias(0)
-                }));
+            for (var categoria in listaProdutosPadrao) {
+                estoqueDados[categoria] = listaProdutosPadrao[categoria].map(function(p) {
+                    return {
+                        produto: p.produto,
+                        unid: p.unid,
+                        lancamentos: criarEstruturaDias(0)
+                    };
+                });
             }
         }
     }
@@ -545,46 +536,46 @@
     }
 
     function atualizarDatasRelatorio() {
-        let dataInputGlobal = document.getElementById('data-sistema')?.value;
-        let segundaFeira = obterSegundaFeira(dataInputGlobal);
-        let segundaFormatada = formatarDataBR(segundaFeira);
+        var dataInputGlobal = document.getElementById('data-sistema').value;
+        var segundaFeira = obterSegundaFeira(dataInputGlobal);
+        var segundaFormatada = formatarDataBR(segundaFeira);
 
-        let campoDataBanner = document.getElementById('banner-data-inicio');
+        var campoDataBanner = document.getElementById('banner-data-inicio');
         if (campoDataBanner) {
             campoDataBanner.innerText = segundaFormatada;
         }
 
-        let tituloRelatorio = document.getElementById('page-title');
+        var tituloRelatorio = document.getElementById('page-title');
         if (tituloRelatorio && modoRelatorio) {
-            tituloRelatorio.innerText = `Semana de: ${segundaFormatada} [Categoria: ${categoriaRelatorioFiltro.replace('_', ' ')}]`;
+            tituloRelatorio.innerText = "Semana de: " + segundaFormatada + " [Categoria: " + categoriaRelatorioFiltro.replace('_', ' ') + "]";
         }
     }
 
     function gerarPDFCategoria() {
-        let dataInputGlobal = document.getElementById('data-sistema')?.value;
-        let segundaFeira = obterSegundaFeira(dataInputGlobal);
-        let segundaFormatada = formatarDataBR(segundaFeira).replace(/\//g, '-');
+        var dataInputGlobal = document.getElementById('data-sistema').value;
+        var segundaFeira = obterSegundaFeira(dataInputGlobal);
+        var segundaFormatada = formatarDataBR(segundaFeira).replace(/\//g, '-');
         
-        document.title = `Relatorio_Semanal_${categoriaRelatorioFiltro}_Iniciando_${segundaFormatada}`;
+        document.title = "Relatorio_Semanal_" + categoriaRelatorioFiltro + "_Iniciando_" + segundaFormatada;
         window.print();
         document.title = "Gestor - Lançamento de Estoque Diário e Relatórios";
     }
 
     function cadastrarProduto() {
-        const nomeInput = document.getElementById('newProdNome');
-        const unidSelect = document.getElementById('newProdUnid');
-        const catSelect = document.getElementById('newProdCategoria');
+        var nomeInput = document.getElementById('newProdNome');
+        var unidSelect = document.getElementById('newProdUnid');
+        var catSelect = document.getElementById('newProdCategoria');
 
-        const nome = nomeInput.value.trim().toUpperCase();
-        const unid = unidSelect.value;
-        const categoriaTarget = catSelect.value;
+        var nome = nomeInput.value.trim().toUpperCase();
+        var unid = unidSelect.value;
+        var categoriaTarget = catSelect.value;
 
         if (!nome) {
             alert('Por favor, digite o nome do produto!');
             return;
         }
 
-        const existe = estoqueDados[categoriaTarget].some(item => item.produto === nome);
+        var existe = estoqueDados[categoriaTarget].some(function(item) { return item.produto === nome; });
         if (existe) {
             alert('Este produto já está cadastrado nesta categoria!');
             return;
@@ -596,125 +587,92 @@
             lancamentos: criarEstruturaDias(0)
         });
 
-        // Salva imediatamente para não perder o novo produto cadastrado
-        const dataInputGlobal = document.getElementById('data-sistema')?.value;
-        const chave = formatarChaveSemana(dataInputGlobal);
+        var dataInputGlobal = document.getElementById('data-sistema').value;
+        var chave = formatarChaveSemana(dataInputGlobal);
         localStorage.setItem(chave, JSON.stringify(estoqueDados));
 
         nomeInput.value = '';
         switchTab(categoriaTarget);
-        alert(`Produto "${nome}" adicionado com sucesso e salvo no sistema!`);
+        alert('Produto "' + nome + '" adicionado com sucesso e salvo no sistema!');
     }
 
     function renderTableHeader() {
-        const header = document.getElementById('table-header');
+        var header = document.getElementById('table-header');
         if (modoRelatorio) {
-            header.innerHTML = `
-                <tr>
-                    <th>Produto</th>
-                    <th>Unid.</th>
-                    <th>Inicial (Segunda)</th>
-                    <th>Total Entrada</th>
-                    <th>Total Vendas</th>
-                    <th>Total Perda</th>
-                    <th>Estoque Final Atual</th>
-                    <th>Diferença Acumulada</th>
-                </tr>
-            `;
+            header.innerHTML = '<tr><th>Produto</th><th>Unid.</th><th>Inicial (Segunda)</th><th>Total Entrada</th><th>Total Vendas</th><th>Total Perda</th><th>Estoque Final Atual</th><th>Diferença Acumulada</th></tr>';
         } else {
-            header.innerHTML = `
-                <tr>
-                    <th>Produto</th>
-                    <th>Unid.</th>
-                    <th>Estoque Inicial</th>
-                    <th>Entrada</th>
-                    <th>Vendas</th>
-                    <th>Perda</th>
-                    <th>Estoque Final</th>
-                    <th>Diferença</th>
-                </tr>
-            `;
+            header.innerHTML = '<tr><th>Produto</th><th>Unid.</th><th>Estoque Inicial</th><th>Entrada</th><th>Vendas</th><th>Perda</th><th>Estoque Final</th><th>Diferença</th></tr>';
         }
     }
 
     function renderTable() {
         renderTableHeader();
-        const tbody = document.getElementById('inventory-grid');
+        var tbody = document.getElementById('inventory-grid');
         tbody.innerHTML = '';
 
         if (modoRelatorio) {
-            let temDados = false;
-            const catKey = categoriaRelatorioFiltro;
+            var temDados = false;
+            var catKey = categoriaRelatorioFiltro;
 
             if (estoqueDados[catKey]) {
-                estoqueDados[catKey].forEach(item => {
+                estoqueDados[catKey].forEach(function(item) {
                     temDados = true;
-                    let totalEntrada = 0;
-                    let totalVendas = 0;
-                    let totalPerda = 0;
+                    var totalEntrada = 0;
+                    var totalVendas = 0;
+                    var totalPerda = 0;
                     
-                    const dias = ['SEGUNDA', 'TERÇA', 'QUARTA', 'QUINTA', 'SEXTA', 'SÁBADO', 'DOMINGO'];
-                    let estoqueInicialSemana = item.lancamentos['SEGUNDA'].inicial;
-                    let estoqueFinalSemana = item.lancamentos['DOMINGO'].final;
+                    var dias = ['SEGUNDA', 'TERÇA', 'QUARTA', 'QUINTA', 'SEXTA', 'SÁBADO', 'DOMINGO'];
+                    var estoqueInicialSemana = item.lancamentos['SEGUNDA'].inicial;
+                    var estoqueFinalSemana = item.lancamentos['DOMINGO'].final;
 
-                    dias.forEach(d => {
+                    dias.forEach(function(d) {
                         totalEntrada += item.lancamentos[d].entrada;
                         totalVendas += item.lancamentos[d].vendas;
                         totalPerda += item.lancamentos[d].perda;
                     });
 
-                    let saldoEsperadoSemanal = estoqueInicialSemana + totalEntrada - totalVendas - totalPerda;
-                    let diferencaSemanal = estoqueFinalSemana - saldoEsperadoSemanal;
+                    var saldoEsperadoSemanal = estoqueInicialSemana + totalEntrada - totalVendas - totalPerda;
+                    var diferencaSemanal = estoqueFinalSemana - saldoEsperadoSemanal;
 
-                    const tr = document.createElement('tr');
-                    tr.innerHTML = `
-                        <td><strong>${item.produto}</strong></td>
-                        <td><span style="color:#6b7280; font-weight:600;">${item.unid}</span></td>
-                        <td><span class="formula-cell">${estoqueInicialSemana}</span></td>
-                        <td><span class="formula-cell" style="color:#1e40af;">${totalEntrada}</span></td>
-                        <td><span class="formula-cell" style="color:#991b1b;">${totalVendas}</span></td>
-                        <td><span class="formula-cell" style="color:#9a3412;">${totalPerda}</span></td>
-                        <td><span class="formula-cell" style="color:#166534;">${estoqueFinalSemana}</span></td>
-                        <td>
-                            <span class="formula-cell ${diferencaSemanal < 0 ? 'negative' : (diferencaSemanal > 0 ? 'positive-green' : '')}">
-                                ${diferencaSemanal > 0 ? '+' + diferencaSemanal : diferencaSemanal}
-                            </span>
-                        </td>
-                    `;
+                    var tr = document.createElement('tr');
+                    var classDif = diferencaSemanal < 0 ? 'negative' : (diferencaSemanal > 0 ? 'positive-green' : '');
+                    tr.innerHTML = '<td><strong>' + item.produto + '</strong></td>' +
+                        '<td><span style="color:#6b7280; font-weight:600;">' + item.unid + '</span></td>' +
+                        '<td><span class="formula-cell">' + estoqueInicialSemana + '</span></td>' +
+                        '<td><span class="formula-cell" style="color:#1e40af;">' + totalEntrada + '</span></td>' +
+                        '<td><span class="formula-cell" style="color:#991b1b;">' + totalVendas + '</span></td>' +
+                        '<td><span class="formula-cell" style="color:#9a3412;">' + totalPerda + '</span></td>' +
+                        '<td><span class="formula-cell" style="color:#166534;">' + estoqueFinalSemana + '</span></td>' +
+                        '<td><span class="formula-cell ' + classDif + '">' + (diferencaSemanal > 0 ? '+' + diferencaSemanal : diferencaSemanal) + '</span></td>';
                     tbody.appendChild(tr);
                 });
             }
 
             if (!temDados) {
-                tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; color:#9ca3af;">Nenhum produto encontrado.</td></tr>`;
+                tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; color:#9ca3af;">Nenhum produto encontrado.</td></tr>';
             }
 
         } else {
             if (!estoqueDados[abaAtual] || estoqueDados[abaAtual].length === 0) {
-                tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; color:#9ca3af;">Nenhum produto cadastrado nesta categoria.</td></tr>`;
+                tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; color:#9ca3af;">Nenhum produto cadastrado nesta categoria.</td></tr>';
                 return;
             }
 
-            estoqueDados[abaAtual].forEach((item, index) => {
-                const valoresDia = item.lancamentos[diaAtual];
-                const saldoEsperado = valoresDia.inicial + valoresDia.entrada - valoresDia.vendas - valoresDia.perda;
-                const diferenca = valoresDia.final - saldoEsperado;
+            estoqueDados[abaAtual].forEach(function(item, index) {
+                var valoresDia = item.lancamentos[diaAtual];
+                var saldoEsperado = valoresDia.inicial + valoresDia.entrada - valoresDia.vendas - valoresDia.perda;
+                var diferenca = valoresDia.final - saldoEsperado;
 
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td><strong>${item.produto}</strong></td>
-                    <td>${item.unid}</td>
-                    <td><input type="number" value="${valoresDia.inicial}" onchange="updateValue(${index}, 'inicial', this.value)"></td>
-                    <td><input type="number" value="${valoresDia.entrada}" onchange="updateValue(${index}, 'entrada', this.value)"></td>
-                    <td><input type="number" value="${valoresDia.vendas}" onchange="updateValue(${index}, 'vendas', this.value)"></td>
-                    <td><input type="number" value="${valoresDia.perda}" onchange="updateValue(${index}, 'perda', this.value)"></td>
-                    <td><input type="number" value="${valoresDia.final}" onchange="updateValue(${index}, 'final', this.value)"></td>
-                    <td>
-                        <span class="formula-cell ${diferenca < 0 ? 'negative' : (diferenca > 0 ? 'positive-green' : '')}">
-                            ${diferenca > 0 ? '+' + diferenca : diferenca}
-                        </span>
-                    </td>
-                `;
+                var tr = document.createElement('tr');
+                var classDif = diferenca < 0 ? 'negative' : (diferenca > 0 ? 'positive-green' : '');
+                tr.innerHTML = '<td><strong>' + item.produto + '</strong></td>' +
+                    '<td>' + item.unid + '</td>' +
+                    '<td><input type="number" value="' + valoresDia.inicial + '" onchange="updateValue(' + index + ', \'inicial\', this.value)"></td>' +
+                    '<td><input type="number" value="' + valoresDia.entrada + '" onchange="updateValue(' + index + ', \'entrada\', this.value)"></td>' +
+                    '<td><input type="number" value="' + valoresDia.vendas + '" onchange="updateValue(' + index + ', \'vendas\', this.value)"></td>' +
+                    '<td><input type="number" value="' + valoresDia.perda + '" onchange="updateValue(' + index + ', \'perda\', this.value)"></td>' +
+                    '<td><input type="number" value="' + valoresDia.final + '" onchange="updateValue(' + index + ', \'final\', this.value)"></td>' +
+                    '<td><span class="formula-cell ' + classDif + '">' + (diferenca > 0 ? '+' + diferenca : diferenca) + '</span></td>';
                 tbody.appendChild(tr);
             });
         }
@@ -758,8 +716,10 @@
     }
 
     function atualizarLayoutAbas() {
-        document.querySelectorAll('.tab-btn').forEach(btn => {
-            const btnText = btn.innerText;
+        var buttons = document.querySelectorAll('.tab-btn');
+        for (var i = 0; i < buttons.length; i++) {
+            var btn = buttons[i];
+            var btnText = btn.innerText;
             if (abaAtual === 'RELATORIOS' && btn.classList.contains('report-tab')) {
                 btn.classList.add('active');
             } else if (btnText === abaAtual || (abaAtual === 'ESTOQUE_SECO' && btnText === 'ESTOQUE SECO')) {
@@ -767,17 +727,16 @@
             } else {
                 btn.classList.remove('active');
             }
-        });
+        }
     }
 
-    // GRAVAÇÃO EFETIVA DOS DADOS NO DISCO RÍGIDO (LOCALSTORAGE)
     function salvarDados() {
-        const dataInputGlobal = document.getElementById('data-sistema')?.value;
-        const chave = formatarChaveSemana(dataInputGlobal);
+        var dataInputGlobal = document.getElementById('data-sistema').value;
+        var chave = formatarChaveSemana(dataInputGlobal);
         
         localStorage.setItem(chave, JSON.stringify(estoqueDados));
         
-        alert(`Sucesso! Todos os lançamentos da semana foram gravados no seu computador.`);
+        alert('Sucesso! Todos os lançamentos da semana foram gravados no seu computador.');
     }
 </script>
 
